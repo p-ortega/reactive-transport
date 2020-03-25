@@ -1,0 +1,142 @@
+DATABASE C:\phreeqc\database\Fe_Decoupled.dat
+
+TITLE EK-ISL - Copper - Bottle roll experiments - Synthetic chalcpiryte and quartz 
+
+SOLUTION 1
+	units mol/L
+	temp 	25
+	pH 	2  		
+	Na 	100e-3 	
+	Cl 	100e-3 	charge	
+	Fe_di 	0 	
+	Fe_tri	500e-3 	
+	Cu(2) 	0 	
+
+EQUILIBRIUM_PHASES 
+Sulfur 0.0 0.0
+Pyrite 0.0 0.0
+# O2(g) -3.0  1
+# CO2(g)    -3.5     1.0
+
+	
+# The considered solid phases were elemental sulfur (Sulf_ccp, Sulf_prim_cov and  Sulf_sec_cov) and the Cu minerals chalcopyrite, covellite and chalcocite, each with its respective kinetically controlled dissolution reaction(s).
+
+# In models where multiple Cu minerals were present, each Cu mineral generated its ‘own’ S0 mineral (Sulf_ccp, Sulf_prim_cov and  Sulf_sec_cov). Following the logical assumption that the S0 that precipitates on one mineral does not affect the other minerals, separate S0 mineral species were introduced to prevent an overestimation of the passivation effect through Eq. 4-12.	
+
+# The reaction block provides lixiviant in excess to investigate the effect of kinetic dissolution.
+# REACTION 1
+# Fe_three 1
+# Chloride 3
+# 2 moles in 200 steps
+
+RATES
+################
+# chalcopyrite (Kimball et al 2010)
+################
+Chalcopyrite
+# experimental condition range T=4-100C, pH=0-5, log C(Fe+++)=-5-0
+-start
+1 rem assuming Fe(III)>1e-4M is the switch point for Fe-promoted mechanism
+10 R=8.31451
+20 if TOT("Fe_tri")<=1e-4 then J=(10^-1.52)*EXP(-28200/(R*TK))*ACT("H+")^1.68 else J=(10^1.88)*EXP(-48100/(R*TK))*ACT("H+")^0.8*TOT("Fe_tri")^0.42
+30 if (parm(1)>0) then SA0=parm(1) else SA0=1
+40 if (M0<=0) then SA=SA0 else SA=SA0* (M/M0)^0.67
+70 SR_mineral=SR("Chalcopyrite")
+80 if (M<0) then goto 150
+90 if (M=0 and SR_mineral<1) then goto 150
+95 k_pass = EXP(-150*EQUI("Sulfur"))
+100 rate=J*SA*(1-SR_mineral)*parm(2)*k_pass
+120 moles=rate*Time
+150 Save moles
+-end 
+
+KINETICS 1
+
+Chalcopyrite ### 13
+-formula  Fe_tri+3 -4.0 Cu+2 1.0 Fe_di+2 5.0 HS- 2.0
+-steps  1036800 in 200 steps
+-parms 30.5 1
+-m0 80.98e-3
+
+# Primcovellite ### 15
+# -parms  0.8e4 0.025
+# -m0 1
+# -formula Primcovellite -5.0 Fe_three -12 Cu_two +6 Fe_two +12 Sulf_prim_cov +5
+
+# Chalcocite ### 16 
+# -parms 4.30E-02  3.25E+02 
+# -m0 1
+# -formula Chalcocite -5.0 Fe_three -8 Seccovellite +5 Cu_two +4 Fe_two +8
+
+
+# Seccovellite ### 17 
+# -parms 1.00E+05 3.00E+01
+# -m0 1
+# -formula Seccovellite -5.0 Fe_three -12 Cu_two +6 Fe_two +12 Sulf_sec_cov +5
+
+-cvode true
+-bad_step_max			5000
+-cvode_steps			1000
+
+INCREMENTAL_REACTIONS
+
+USER_GRAPH 1
+-chart_title "pH"
+-plot_concentration_vs time
+-initial_solutions false
+-axis_titles "time (h)" "pH"
+-headings time pH
+#-axis_scale y_axis 0 10 
+-start
+10 GRAPH_X TOTAL_TIME/3600
+20 GRAPH_Y -LA("H+")
+
+USER_GRAPH 10
+-chart_title "Cu(II)"
+-plot_concentration_vs time
+-initial_solutions false
+-axis_titles "time (days)" "Concentrations (mmol/L)"
+-headings time Cu_two
+#-axis_scale y_axis 0 10 
+-start
+10 GRAPH_X TOTAL_TIME/86400
+20 GRAPH_Y mol("Cu+2")*1000
+
+USER_GRAPH 20
+-chart_title "Fe"
+-plot_concentration_vs time
+-initial_solutions false
+-axis_titles "time (days)" "Concentrations (mmol/L)"
+-headings time Fe3 Fe2
+-start
+10 GRAPH_X TOTAL_TIME/86400
+20 GRAPH_Y tot("Fe_tri")*1000
+30 GRAPH_Y tot("Fe_di")*1000
+
+USER_GRAPH 30
+-chart_title "Minerals"
+-plot_concentration_vs time
+-initial_solutions false
+-axis_titles "time (days)" "Concentrations (mmol/L)"
+-headings time Chalcopyrite Chalcocite Primcovellite Seccovellite
+-start
+10 GRAPH_X TOTAL_TIME/86400
+20 GRAPH_Y KIN("Chalcopyrite")*1000
+
+
+USER_GRAPH 40
+-chart_title "Sulfur Species"
+-plot_concentration_vs time
+-initial_solutions false
+-axis_titles "time (days)" "Concentrations (mmol/L)"
+-headings time Sulfur Species
+-start
+10 GRAPH_X TOTAL_TIME/86400
+20 GRAPH_Y mol("HS-")*1e3
+30 GRAPH_Y EQUI("S")*1e3
+40 GRAPH_Y TOT("S")*1e3
+
+
+END
+
+

@@ -1,0 +1,33 @@
+DATABASE ./database/phreeqc.dat
+
+SOLUTION 0
+ pH 6 charge; N(5) 1e-3; Na 0.1; Cl 0.1
+END
+#PRINT; -reset false; -status false
+SOLUTION 1-20
+ pH 4 charge; N(5) 0.1; Na 0.1; Cl 0.1
+TRANSPORT
+ -cells 10
+ -lengths 1e-3
+ -boundary_conditions 1 3
+ -shifts 1
+ -flow_direction diffusion_only
+ -time 3600
+ -multi_d true 1e-9 1 0.0 1.0 # Default D_w m2/s, porosity, porosity limit, exponent
+ -punch_cells 0-10
+USER_PUNCH
+	-headings dist H+ NO3- Na+ Cl- lgH+ lgNO3- lgNa+ lgCl- 
+	-start
+	10 PUNCH dist*1e3 
+	20 PUNCH MOL("H+")*1e3, MOL("NO3-")*1e3, MOL("Na+")*1e3, MOL("Cl-")*1e3
+	#20 PUNCH -MOL("N(5)")
+	#30 PUNCH -MOL("Cl")
+	#40 PUNCH -MOL("Na")
+		-end
+SELECTED_OUTPUT
+    -file           data/uphill.csv
+    -reset          false
+    -step 			true
+    #-distance       true
+    #-totals		NO3- Cl Na
+END

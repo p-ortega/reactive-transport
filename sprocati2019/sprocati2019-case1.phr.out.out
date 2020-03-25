@@ -1,0 +1,85 @@
+   Input file: sprocati2019-case1.phr.out
+  Output file: sprocati2019-case1.phr.out.out
+Using PHREEQC: version 3.6.0, compiled December 2, 2019
+Database file: C:\Program Files\USGS\phreeqc-3.5.0-14000-x64\database\phreeqc.dat
+
+------------------
+Reading data base.
+------------------
+
+	SOLUTION_MASTER_SPECIES
+	SOLUTION_SPECIES
+	PHASES
+	EXCHANGE_MASTER_SPECIES
+	EXCHANGE_SPECIES
+	SURFACE_MASTER_SPECIES
+	SURFACE_SPECIES
+	RATES
+	END
+------------------------------------
+Reading input data for simulation 1.
+------------------------------------
+
+	   Input file: sprocati2019-case1.phr
+WARNING: Unknown input, no keyword has been specified.
+	  Output file: sprocati2019-case1.phr.out
+WARNING: Unknown input, no keyword has been specified.
+	Using PHREEQC: version 3.6.0, compiled December 2, 2019
+WARNING: Unknown input, no keyword has been specified.
+	Database file: database/phreeqc-mod.dat
+	------------------
+WARNING: Unknown input, no keyword has been specified.
+	Reading data base.
+WARNING: 	Reading data base.
+
+	------------------
+WARNING: 	------------------
+
+		SOLUTION_MASTER_SPECIES
+		SOLUTION_SPECIES
+		PHASES
+		EXCHANGE_MASTER_SPECIES
+		EXCHANGE_SPECIES
+		SURFACE_MASTER_SPECIES
+		SURFACE_SPECIES
+		RATES
+		END
+------------------
+End of simulation.
+------------------
+
+------------------------------------
+Reading input data for simulation 2.
+------------------------------------
+
+	------------------------------------
+WARNING: Unknown input, no keyword has been specified.
+	Reading input data for simulation 1.
+WARNING: Unknown input, no keyword has been specified.
+	------------------------------------
+WARNING: Unknown input, no keyword has been specified.
+		DATABASE database/phreeqc-mod.dat
+ERROR: DATABASE must be the first keyword in the input file.
+		SOLUTION_MASTER_SPECIES
+			A_i 	A_i+ 	0.0		1.0		1.0
+			B_i 	B_i-	0.0		1.0		1.0
+			C_i		C_i+	0.0		1.0		1.0
+			D_i 	D_i-	0.0		1.0		1.0
+		SOLUTION_SPECIES
+			A_i+ = A_i+
+				log_k	0.0
+			B_i- = B_i-
+				log_k	0.0
+			C_i+ = C_i+
+				log_k	0.0
+			D_i- = D_i-
+				log_k	0.0
+		SOLUTION 0 #cathode (-)
+			pH 7 charge
+			temp 25
+			A_i 10
+			B_i 10
+			potential 0
+		END
+ERROR: Calculations terminating due to input errors.
+Stopping.

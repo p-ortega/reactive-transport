@@ -1,0 +1,110 @@
+DATABASE C:\phreeqc\database\Fe_Decoupled.dat
+
+# Model a continuous-flow stirred tank reactor with keyword TRANSPORT, -stagnant.
+#   -stagnant allows to define explicit mixing of 2 (or more) solutions.
+#   In the example, 1% of solution 3 is displaced by solution 0 with each 0.2 hour time_step.
+#   -shifts permit to do that a number of times. 
+#   The residence time is tR = Volume (V) / (dV/dt) = 1 L / (0.01 L / 0.2 hour) = 20 hours.
+# Analytical solution (M3 is mass in the tank-solution 3, c3 the concentration, c0 idem in solution 0):
+#   dM3 = (c0 - c3) * dV;  dc3 = dM3/V = (c0 - c3) * dV/V;  dc3/dt = (c0 - c3) / tR. Integrate, and find
+#   the concentration in the tank (solution 3) is c3,t = c0 + (c3,0 - c0)*exp(-t/tR).
+
+PRINT 
+-reset false 
+-user_print true
+
+SOLUTION 0   # inlet solution 0, 1 kg water by default. 
+-units mmol/L
+pH 3
+Fe_tri 1
+Cl 3 charge
+
+SOLUTION 1   # Also define solution 1 since PHREEQC wants at least 1 cell in the column.
+
+SOLUTION 3   # the tank solution is flushed by solution 0
+-units mmol/L
+pH 7
+Fe_tri 1
+Cl 3 charge
+
+
+# PRINT; -user_print false
+
+MIX 3; 
+3 0.99 
+0 0.01 # mix a fraction of 0.99 of solution 3 with a fraction of 0.01 of solution 0,
+                      # the result is a new solution 3.
+                      # tR = V / (dV/dt) = 1 L / (0.01 L / 0.2 hour) = 20 hours.
+# You can add more inflow lines (keep the total of the fractions equal to 1)
+
+# Add a kinetic denitrification reaction NO3- + H+ + 2.5 H2 = 0.5 N2 + 3 H2O,
+#   model according to eqn 10.52 in A&P.
+#   Use Hdg as H2 source, fix the concentration (and pH) with EQUILIBRIUM_PHASES
+
+RATES
+################
+# chalcopyrite (Kimball et al 2010)
+################
+Chalcopyrite
+# experimental condition range T=4-100C, pH=0-5, log C(Fe+++)=-5-0
+-start
+1 rem assuming Fe(III)>1e-4M is the switch point for Fe-promoted mechanism
+10 R=8.31451
+20 if TOT("Fe_tri")<=1e-4 then J=(10^-1.52)*EXP(-28200/(R*TK))*ACT("H+")^1.68 else J=(10^1.88)*EXP(-48100/(R*TK))*ACT("H+")^0.8*TOT("Fe_tri")^0.42
+30 if (parm(1)>0) then SA0=parm(1) else SA0=1
+40 if (M0<=0) then SA=SA0 else SA=SA0* (M/M0)^0.67
+70 SR_mineral=SR("Chalcopyrite")
+80 if (M<0) then goto 150
+90 if (M=0 and SR_mineral<1) then goto 150
+100 rate=J*SA*(1-SR_mineral)*parm(2)
+120 moles=rate*Time
+150 Save moles
+160 put(rate, 1)
+-end 
+
+KINETICS 3
+Chalcopyrite ### 13
+-parms 30.5 1
+-m0 5e-3#22.451
+
+PHASES
+Chalcopyrite        
+        CuFe_diS2 + 2H+ = Cu+2 + Fe_di+2 + 2HS-
+        log_k           -35.270
+        delta_h 35.480 kcal
+
+END
+
+TRANSPORT
+-cells 1; -boundary_conditions constant closed; -flow_direction diffusion_only
+-stagnant 1 # 1 stagnant layer, but more are possible, for modeling bad mixing in the tank
+
+-time_step 0.2 hour # each time_step, the MIX is performed
+-shifts 10000#500         # number of time_steps, total time is 100 hours
+-punch_cells 3      # only graph the tank solution
+-punch_frequency 25 # sample every 5 hours
+
+USER_GRAPH 1    
+-chart_title "Chalcopyrite Dissolution Rate in Stirred-Flow Reactor"
+-axis_titles "Outflow / reactor volumes" " mmol Chalcopyrite" 
+# -axis_scale x_axis 0 5
+-headings Chalcopyrite Fe(III)
+-initial_solutions true
+-start
+10 tR = 20 * 3600 # residence time in seconds
+50 plot_xy sim_time/86400, 1e3 * KIN("Chalcopyrite"), color= red
+
+-end
+
+USER_GRAPH 2   
+-axis_titles "Outflow / reactor volumes" " Concentration (mmol / L)"  
+-headings Cu Fe(II) Fe(III) pH
+-initial_solutions true
+-start
+10 tR = 20 * 3600 # residence time in seconds
+15 tim = total_time/tR
+20 plot_xy tim, 1e3 * tot("Cu"), color= red
+30 plot_xy tim, 1e3 * tot("Fe_tri"), color= blue
+40 plot_xy tim, 1e3 * tot("Fe_di"), color= orange
+60 plot_xy tim, -LA("H+"), color= green, y_axis = 2
+END

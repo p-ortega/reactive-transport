@@ -1,0 +1,51 @@
+DATABASE ./database/phreeqc-mod.dat
+
+SOLUTION 0
+	pH 7 charge
+	Mg		1
+	Cl		2.1
+	temp 20
+SOLUTION 1-60
+	pH 7 charge
+	Mg		1
+	Cl		2.1
+	temp 20
+END
+
+SOLUTION 61-120  Pure water
+    pH		7.0
+    temp	20.0
+
+SOLUTION 121  Pure water
+    pH		7.0
+    temp	20.0
+
+TRANSPORT
+	-cells 120
+	-length 0.001
+	-shift 12
+	-time_step 3600
+	-flow_direction diffusion_only
+	-boundary conditions 1 1
+	-multi_d true 1e-9 1 0.0 1.0
+	-punch_cells 1-120
+	-implicit true 2
+
+USER_PUNCH
+	-headings dist H Mg2 Cl gammaH gammaMg2 gammaCl potential
+	-start
+	10 PUNCH dist
+	20 PUNCH MOL("H+")*1e3, MOL("Mg+2")*1e3, MOL("Cl-")*1e3
+	30 PUNCH GAMMA("H+"), GAMMA("Mg+2"), GAMMA("Cl-")
+	40 PUNCH POT_V
+	-end
+SELECTED_OUTPUT
+    -file           data/rolle2018-1Da.csv
+    -reset          false
+    -time			true
+    # -activities   H+  Mg+2  Cl-
+    #-distance       true
+    #-totals		NO3- Cl Na
+END
+############# Scenario 2
+

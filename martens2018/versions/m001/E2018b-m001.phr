@@ -1,0 +1,52 @@
+DATABASE C:\Users\pablo\portega\phd\modeling\reactive-transport\E42018b\input\pht3d_datab.dat
+
+SOLUTION 0
+pH 2 charge; I_naq 100; Ithree_naq 40; -water 1e5
+SOLUTION 1-28
+pH 7 charge; Na 100; Cl 100; -water 1e5
+SOLUTION 29
+pH 7 charge; Cl 100; Na 100; -water 1e5
+-potential 50
+END
+
+KINETICS 1-28
+Gold
+-m 1
+-parms 3.8
+
+# I_naq
+# -m 1
+# -parms 1
+# -formula I_naq -1 Itwo_aq -1 Ithree_naq 1
+
+# Ithree_naq
+# -m 1 
+# -parms 1 1
+# -formula I_naq -1 Itwo_aq -1 Ithree_naq 1
+
+# Itwo_aq
+# -m 1
+# -parms 1
+# -formula I_naq -1 Itwo_aq -1 Ithree_naq 1
+
+# Auitwo_naq
+# -m 1
+# -formula Au_plus -1 I_naq -0.5 Auitwo_naq 1
+# END
+
+TRANSPORT
+-cells 29
+-lengths 0.1 27*0.001 0.1 
+-boundary_conditions 1 1
+-multi_d true 5.53e-5 0.0019 0.0 1
+-flow_direction diffusion_only
+-time_step 1 day 1
+-shifts 60
+-punch_frequency 1
+-punch_cells 0-29
+-implicit true 1
+
+SELECTED_OUTPUT
+-file   E2018b-m001-results.csv
+-totals I_naq Ithree_naq Cl Gold Auitwo_naq Itwo_aq
+-charge_balance true

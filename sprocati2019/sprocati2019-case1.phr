@@ -1,0 +1,79 @@
+DATABASE database/phreeqc.dat
+
+# Equal concentration background electrolyte case
+
+SOLUTION_MASTER_SPECIES
+	A_i 	A_i+ 	0.0		1.0		1.0
+	B_i 	B_i-	0.0		1.0		1.0
+	C_i		C_i+	0.0		1.0		1.0
+	D_i 	D_i-	0.0		1.0		1.0
+
+SOLUTION_SPECIES
+	A_i+ = A_i+
+		log_k	0.0
+		# -gamma 	1.0
+		# -dw		1E-9
+	B_i- = B_i-
+		log_k	0.0
+		# -gamma 	1.0
+		# -dw 	1E-9
+	C_i+ = C_i+
+		log_k	0.0
+		# -gamma 	1.0
+		# -dw		1E-9
+	D_i- = D_i-
+		log_k	0.0
+		# -gamma 	1.0
+		# -dw 		1E-9
+
+SOLUTION 0 #cathode (-)
+	pH 7 charge
+	temp 25
+	A_i 10
+	B_i 10
+	potential 0
+
+END
+
+SOLUTION 1-100
+	pH 7 charge
+	temp 25
+	C_i	10
+	D_i 10
+
+END
+
+SOLUTION 101 #anode (+)
+	pH 7 charge
+	temp 25
+	C_i	10
+	D_i 10
+	potential 100
+
+END
+
+TRANSPORT
+	-cells 100
+	-length 0.01
+	-shift 6
+	-time_step 1 [day] # 1day
+	-flow_direction diffusion_only
+	-boundary conditions 1 1
+	-multi_d true 0.4e-9 0.4 0.4 1.0
+	-punch_cells 1-100
+	-implicit true 1
+	-current 1
+
+USER_PUNCH
+	-headings dist A_i B_i C_i D_i gA_i gB_i gC_i gD_i potential current
+	-start
+	10 PUNCH dist
+	20 PUNCH MOL("A_i+")*1e3, MOL("B_i-")*1e3, MOL("C_i+")*1e3, MOL("D_i-")*1e3
+	30 PUNCH GAMMA("A_i+"), GAMMA("B_i-"), GAMMA("C_i+"), GAMMA("D_i-")
+	40 PUNCH POT_V, current
+	-end
+SELECTED_OUTPUT
+    -file           data/sprocati2019-case1.csv
+    -reset          false
+    -time			true
+END
