@@ -1,0 +1,52 @@
+DATABASE database/minteq.v4.dat
+
+SOLUTION 0 #cathode (-)
+	# pH 7 charge
+	# -water 1000
+	temp 25
+	K 10
+	Mn(7) 10
+
+END
+
+SOLUTION 1-100
+	# pH 7 
+	temp 25
+	Na 10
+	Alkalinity 10 as HCO3
+END
+
+SOLUTION 101 #anode (+)
+	# pH 7 
+	temp 25
+	Na 10
+	Alkalinity 10 as HCO3
+	potential 100
+END
+
+TRANSPORT
+	-cells 100
+	-length 0.01
+	-shift  144 #6 days
+	-time_step 3600
+	-flow_direction diffusion_only
+	-boundary conditions 1 1
+	-multi_d true 4e-10 0.4 0.0 1.0
+	-punch_cells 1-100
+	-implicit true 2
+	# -fix_current 1
+
+USER_PUNCH
+	-headings dist K MnO4 Na HCO3 gK gMn_7 gNa gHCO3 potential current time
+	-start
+	10 PUNCH dist
+	20 PUNCH MOL("K+")*1e3, MOL("MnO4-")*1e3, MOL("Na+")*1e3, MOL("HCO3-")*1e3
+	30 PUNCH GAMMA("K+"), GAMMA("MnO4-"), GAMMA("Na+"), GAMMA("HCO3-")
+	40 PUNCH POT_V, current_A
+	50 PUNCH STEP_NO
+	-end
+SELECTED_OUTPUT
+    -file           data/sprocati2019-case2.csv
+    -reset          false
+    -time			false
+END

@@ -1,0 +1,47 @@
+SOLUTION_RAW                 0 
+  -temp                      25
+  -pressure                  1
+  -potential                 0
+  -total_h                   1110.1243361443
+  -total_o                   555.06216807214
+  -cb                        -1.8084153423879e-18
+  -density                   0.99706295551521
+  -totals
+    A_i                      0.10000000011136
+    B_i                      0.10000000011136
+    H(0)                     1.4504723577929e-24
+  -pH                        6.9942602639341
+  -pe                        4
+  -mu                        0.010000110944188
+  -ah2o                      0.9996599962279
+  -mass_water                10
+  -soln_vol                  10.02965757044
+  -total_alkalinity          1.8084153423879e-18
+  -activities
+    A_i                      -2.0448360319487
+    B_i                      -2.0448360319487
+    E                        -4
+    H(0)                     -25.138520502775
+    O(0)                     -42.103254368192
+  -gammas
+EQUILIBRIUM_PHASES_RAW       0 
+  # EXCHANGE_MODIFY candidates; use new_def=true #
+  -new_def                   0
+  -component                 Fix_H+
+      # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
+      -add_formula           HCl
+      -si                    -7
+      -moles                 0.9999999999
+      -force_equality        0
+      -dissolve_only         0
+      -precipitate_only      0
+      # PPassemblage workspace variables #
+      -si_org                -7
+      -delta                 0
+      -initial_moles         1
+      -totals                
+  -eltList                   # List of all elements in phases and alternate reactions
+    Cl                       1
+    H                        2
+  # PPassemblage workspace variables #
+  -assemblage_totals

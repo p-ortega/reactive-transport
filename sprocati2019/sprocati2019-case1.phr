@@ -3,77 +3,97 @@ DATABASE database/phreeqc.dat
 # Equal concentration background electrolyte case
 
 SOLUTION_MASTER_SPECIES
-	A_i 	A_i+ 	0.0		1.0		1.0
-	B_i 	B_i-	0.0		1.0		1.0
-	C_i		C_i+	0.0		1.0		1.0
-	D_i 	D_i-	0.0		1.0		1.0
+	A_i 	A_i+ 	0.0		A_i 	1.0
+	B_i 	B_i-	0.0		B_i		1.0
+	C_i		C_i+	0.0		C_i		1.0
+	D_i 	D_i-	0.0		D_i		1.0
 
 SOLUTION_SPECIES
 	A_i+ = A_i+
 		log_k	0.0
-		# -gamma 	1.0
-		# -dw		1E-9
+		# -gamma 	9.0 0.0
+		# -Vm  4.465  4.801  4.325  -2.847  1.748  0  -0.331  20.16  0  1
+		# -dw		0.4*1E-9
 	B_i- = B_i-
 		log_k	0.0
-		# -gamma 	1.0
+		# -gamma 	9.0 0.0
+		# -Vm  4.465  4.801  4.325  -2.847  1.748  0  -0.331  20.16  0  1
 		# -dw 	1E-9
 	C_i+ = C_i+
 		log_k	0.0
-		# -gamma 	1.0
+		# -gamma 	9.0 0.0
+		# -Vm  4.465  4.801  4.325  -2.847  1.748  0  -0.331  20.16  0  1
 		# -dw		1E-9
 	D_i- = D_i-
 		log_k	0.0
-		# -gamma 	1.0
+		# -gamma 	9.0 0.0
+		# -Vm  4.465  4.801  4.325  -2.847  1.748  0  -0.331  20.16  0  1
 		# -dw 		1E-9
+PHASES
+        Fix_H+
+        H+ = H+
+        log_k  0.0
 
-SOLUTION 0 #cathode (-)
-	pH 7 charge
+SOLUTION 0 #cathode(-)
+	-water 1
+	pH 7
 	temp 25
 	A_i 10
 	B_i 10
-	potential 0
+	# C_i 10
+	# D_i 10
+	# potential 0
 
-END
-
-SOLUTION 1-100
-	pH 7 charge
+SOLUTION 1-20
+	-water 5e-2
+	pH 7 
 	temp 25
-	C_i	10
+	C_i 10
 	D_i 10
-
 END
-
-SOLUTION 101 #anode (+)
-	pH 7 charge
+SOLUTION 21 #anode(+)
+	-water 1
+	pH 7 
 	temp 25
-	C_i	10
+	C_i 10
 	D_i 10
 	potential 100
 
-END
+EQUILIBRIUM_PHASES 0
+# pH_Fix  7 NaOH 10.0
+# H2(g) -10 0
+# # O2(g) -10 0 # ... and O2
+	Fix_H+ -7.0 HCl 1.0
+	# HCl 1 0
+
+EQUILIBRIUM_PHASES 21
+# pH_Fix  7 NaOH 10.0
+# H2(g) -10 0
+# O2(g) -10 0 # ... an O2
+	Fix_H+ -7.0 NaOH 1.0
 
 TRANSPORT
-	-cells 100
-	-length 0.01
-	-shift 6
-	-time_step 1 [day] # 1day
+	-cells 20
+	-length 0.05
+	-shift 144 #6 days
+	-time_step 1 hour
 	-flow_direction diffusion_only
-	-boundary conditions 1 1
-	-multi_d true 0.4e-9 0.4 0.4 1.0
-	-punch_cells 1-100
+	-boundary_conditions 1 1
+	-multi_d true 4e-10 0.4 0.0 1.0
+	-punch_cells 1-20
 	-implicit true 1
-	-current 1
+	# -fix_current -0.1
 
 USER_PUNCH
-	-headings dist A_i B_i C_i D_i gA_i gB_i gC_i gD_i potential current
+	-headings dist A_i B_i C_i D_i H OH pH gA_i gB_i gC_i gD_i potential current time
 	-start
 	10 PUNCH dist
-	20 PUNCH MOL("A_i+")*1e3, MOL("B_i-")*1e3, MOL("C_i+")*1e3, MOL("D_i-")*1e3
+	20 PUNCH MOL("A_i+")*1e3, MOL("B_i-")*1e3, MOL("C_i+")*1e3, MOL("D_i-")*1e3, MOL("H+")*1e3, MOL("OH-")*1e3, -1*log10(MOL("H+"))
 	30 PUNCH GAMMA("A_i+"), GAMMA("B_i-"), GAMMA("C_i+"), GAMMA("D_i-")
-	40 PUNCH POT_V, current
+	40 PUNCH POT_V, current_A step_no
 	-end
 SELECTED_OUTPUT
     -file           data/sprocati2019-case1.csv
     -reset          false
-    -time			true
+    # -time			false
 END
